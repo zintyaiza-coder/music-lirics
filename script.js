@@ -32,6 +32,7 @@
   let currentSec = 0;
   let isPlaying = false;
   let intervalId = null;
+  let audioError = false;
 
   relayStream.innerHTML = "";
   const rowElements = cues.map((cue) => {
@@ -63,7 +64,7 @@
   }
 
   function hasRealAudio() {
-    return Boolean(audio) && Number.isFinite(audio.duration) && audio.duration > 0;
+    return Boolean(audio) && !audioError && Number.isFinite(audio.duration) && audio.duration > 0;
   }
 
   function renderUI(sec, total) {
@@ -84,7 +85,8 @@
 
     const safeTotal = total > 0 ? total : FALLBACK_DURATION;
     seekBar.value = String(Math.min(100, Math.max(0, (sec / safeTotal) * 100)));
-    timeReadout.textContent = `${formatTime(sec)} / ${formatTime(safeTotal)}`;
+    const suffix = audioError ? " • cek lagu1.mp3" : "";
+    timeReadout.textContent = `${formatTime(sec)} / ${formatTime(safeTotal)}${suffix}`;
   }
 
   function stopTimer() {
@@ -143,6 +145,11 @@
   });
 
   if (audio) {
+    audio.addEventListener("error", () => {
+      audioError = true;
+      renderUI(currentSec, FALLBACK_DURATION);
+    });
+
     audio.addEventListener("timeupdate", () => {
       if (hasRealAudio()) {
         currentSec = audio.currentTime;
@@ -152,7 +159,8 @@
 
     audio.addEventListener("loadedmetadata", () => {
       if (hasRealAudio()) {
-        renderUI(audio.currentTime, audio.duration);
+        audioError = false;
+        renderUI(currentSec, audio.duration);
       }
     });
 
