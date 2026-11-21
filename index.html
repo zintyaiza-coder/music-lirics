@@ -10,10 +10,38 @@
   <div class="cosmos-bg" aria-hidden="true">
     <div class="starfield"></div>
     <div class="ambient-glow" id="ambientGlow"></div>
+    <div class="shooting-stars"></div>
+    <canvas id="ambientParticles"></canvas>
   </div>
 
   <main class="stage">
     <section class="relay-stream" id="relayStream" aria-live="polite"></section>
+
+    <aside class="bot-companion" aria-hidden="true">
+      <svg class="bot-svg" viewBox="0 0 220 280" fill="none">
+        <!-- Antena & kepala geometris -->
+        <line x1="110" y1="22" x2="110" y2="54" stroke="currentColor" stroke-width="1.6" />
+        <circle cx="110" cy="18" r="5" stroke="currentColor" stroke-width="1.6" />
+        <rect x="64" y="54" width="92" height="68" rx="14" stroke="currentColor" stroke-width="1.8" />
+        <!-- Mata digital -->
+        <rect x="82" y="78" width="18" height="10" rx="3" stroke="currentColor" stroke-width="1.6" />
+        <rect x="120" y="78" width="18" height="10" rx="3" stroke="currentColor" stroke-width="1.6" />
+        <line x1="94" y1="103" x2="126" y2="103" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+
+        <!-- Leher & badan kotak tegas -->
+        <line x1="110" y1="122" x2="110" y2="138" stroke="currentColor" stroke-width="1.6" />
+        <polygon points="72,138 148,138 138,216 82,216" stroke="currentColor" stroke-width="1.8" />
+        <rect x="94" y="158" width="32" height="24" rx="4" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3" />
+
+        <!-- Lengan sudut patah tapi gerak halus -->
+        <polyline points="72,148 42,174 52,202" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        <polyline points="148,148 178,174 168,202" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+
+        <!-- Kaki garis lurus -->
+        <line x1="94" y1="216" x2="90" y2="256" stroke="currentColor" stroke-width="1.6" />
+        <line x1="126" y1="216" x2="130" y2="256" stroke="currentColor" stroke-width="1.6" />
+      </svg>
+    </aside>
   </main>
 
   <footer class="audio-bar">
