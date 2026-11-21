@@ -1,4 +1,3 @@
-// Daftar estafet lirik: tinggal sesuaikan 'time' (detik), 'avatar', atau 'text'
 const cues = [
   { time: 6, singer: "Maroon5", initials: "M5", avatar: "maroon5.jpg", glow: "rgba(245, 133, 41, 0.18)", text: "Now i've at a payphone" },
   { time: 8, singer: "Onedirection", initials: "1D", avatar: "onedirection.jpg", glow: "rgba(221, 42, 123, 0.18)", text: "We're looking back, we messed around" },
@@ -26,10 +25,14 @@ const playBtn = document.getElementById("playBtn");
 const seekBar = document.getElementById("seekBar");
 const timeReadout = document.getElementById("timeReadout");
 
+const FALLBACK_DURATION = 66;
+let isPlaying = false;
+let simTime = 0;
+let timerId = null;
+
 const rowElements = cues.map((cue) => {
   const row = document.createElement("article");
   row.className = "singer-row";
-
   row.innerHTML = `
     <div class="avatar-ring">
       <div class="avatar-inner">
@@ -44,25 +47,28 @@ const rowElements = cues.map((cue) => {
       <div class="lyric-line">${cue.text}</div>
     </div>
   `;
-
   relayStream.appendChild(row);
   return row;
 });
 
 function formatTime(sec) {
-  if (!Number.isFinite(sec)) return "00:00";
+  if (!Number.isFinite(sec) || sec < 0) return "00:00";
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-function updateActiveLyric() {
-  const current = audio.currentTime;
-  let activeIndex = 0;
+function canUseRealAudio() {
+  return Number.isFinite(audio.duration) && audio.duration > 0;
+}
 
-  cues.forEach((cue, idx) => {
-    if (current >= cue.time) activeIndex = idx;
-  });
+function renderLyrics(currentTime, duration) {
+  let activeIndex = 0;
+  for (let i = 0; i < cues.length; i++) {
+    if (currentTime >= cues[i].time) {
+      activeIndex = i;
+    }
+  }
 
   rowElements.forEach((row, idx) => {
     row.classList.toggle("is-active", idx === activeIndex);
@@ -75,34 +81,91 @@ function updateActiveLyric() {
     ambientGlow.style.background = `radial-gradient(circle, ${activeCue.glow}, rgba(81, 91, 212, 0.06) 50%, transparent 72%)`;
   }
 
-  if (Number.isFinite(audio.duration) && audio.duration > 0) {
-    seekBar.value = String((current / audio.duration) * 100);
+  if (duration > 0) {
+    seekBar.value = String(Math.min(100, Math.max(0, (currentTime / duration) * 100)));
   }
-  timeReadout.textContent = `${formatTime(current)} / ${formatTime(audio.duration)}`;
+  timeReadout.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+}
+
+function startSimLoop() {
+  clearInterval(timerId);
+  timerId = setInterval(() => {
+    simTime += 0.2;
+    if (simTime >= FALLBACK_DURATION) {
+      simTime = FALLBACK_DURATION;
+      renderLyrics(simTime, FALLBACK_DURATION);
+      pausePlayback();
+      simTime = 0;
+      return;
+    }
+    renderLyrics(simTime, FALLBACK_DURATION);
+  }, 200);
+}
+
+function stopSimLoop() {
+  clearInterval(timerId);
+  timerId = null;
+}
+
+function pausePlayback() {
+  isPlaying = false;
+  playBtn.textContent = "Putar";
+  stopSimLoop();
+  if (!audio.paused) {
+    audio.pause();
+  }
+}
+
+async function startPlayback() {
+  isPlaying = true;
+  playBtn.textContent = "Jeda";
+
+  if (canUseRealAudio()) {
+    try {
+      await audio.play();
+      return;
+    } catch (err) {
+      // Kalau audio gagal diputar, lanjut ke mode timer
+    }
+  }
+  startSimLoop();
 }
 
 playBtn.addEventListener("click", () => {
-  if (audio.paused) {
-    audio.play();
-    playBtn.textContent = "Jeda";
+  if (isPlaying) {
+    pausePlayback();
   } else {
-    audio.pause();
-    playBtn.textContent = "Putar";
+    startPlayback();
   }
 });
 
 seekBar.addEventListener("input", () => {
-  if (Number.isFinite(audio.duration) && audio.duration > 0) {
-    audio.currentTime = (Number(seekBar.value) / 100) * audio.duration;
-    updateActiveLyric();
+  const ratio = Number(seekBar.value) / 100;
+  if (canUseRealAudio()) {
+    audio.currentTime = ratio * audio.duration;
+    renderLyrics(audio.currentTime, audio.duration);
+  } else {
+    simTime = ratio * FALLBACK_DURATION;
+    renderLyrics(simTime, FALLBACK_DURATION);
   }
 });
 
-audio.addEventListener("timeupdate", updateActiveLyric);
-audio.addEventListener("loadedmetadata", updateActiveLyric);
-audio.addEventListener("ended", () => {
-  playBtn.textContent = "Putar";
+audio.addEventListener("timeupdate", () => {
+  if (canUseRealAudio()) {
+    renderLyrics(audio.currentTime, audio.duration);
+  }
 });
 
-// Tampilkan baris pertama secara default sebelum audio diputar
-updateActiveLyric();
+audio.addEventListener("loadedmetadata", () => {
+  if (canUseRealAudio()) {
+    renderLyrics(audio.currentTime, audio.duration);
+  }
+});
+
+audio.addEventListener("ended", () => {
+  pausePlayback();
+  audio.currentTime = 0;
+  renderLyrics(0, audio.duration || FALLBACK_DURATION);
+});
+
+renderLyrics(0, FALLBACK_DURATION);
