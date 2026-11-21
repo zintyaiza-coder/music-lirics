@@ -1,26 +1,27 @@
 (() => {
   const cues = [
-    { time: 6, singer: "Maroon5", initials: "M5", avatar: "maroon5.jpg", glow: "rgba(245, 133, 41, 0.18)", text: "Now i've at a payphone" },
+    { time: 5, singer: "Maroon5", initials: "M5", avatar: "maroon5.jpg", glow: "rgba(245, 133, 41, 0.18)", text: "Now i've at a payphone" },
     { time: 8, singer: "Onedirection", initials: "1D", avatar: "onedirection.jpg", glow: "rgba(221, 42, 123, 0.18)", text: "We're looking back, we messed around" },
     { time: 12, singer: "Onedirection", initials: "1D", avatar: "onedirection.jpg", glow: "rgba(221, 42, 123, 0.18)", text: "But that was then and this is now" },
-    { time: 16, singer: "Onedirection", initials: "1D", avatar: "onedirection.jpg", glow: "rgba(221, 42, 123, 0.18)", text: "All we need's enough" },
+    { time: 15, singer: "Onedirection", initials: "1D", avatar: "onedirection.jpg", glow: "rgba(221, 42, 123, 0.18)", text: "All we need's enough" },
     { time: 20, singer: "Onedirection", initials: "1D", avatar: "onedirection.jpg", glow: "rgba(221, 42, 123, 0.18)", text: "love to hold us Where we are" },
-    { time: 26, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "But you should know that i die slow" },
+    { time: 25, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "But you should know that i die slow" },
     { time: 30, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "Running through the halls" },
     { time: 32, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "Of your haunted home" },
     { time: 34, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "and the toughest part" },
     { time: 36, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "is that we both know" },
     { time: 38, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "what happened to you" },
     { time: 40, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "why you're out on your own" },
-    { time: 44, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "Merry Christmas please don't call" },
-    { time: 50, singer: "Alexcrichton", initials: "AC", avatar: "alexcrichton.jpg", glow: "rgba(81, 91, 212, 0.22)", text: "So what if i call?" },
+    { time: 43, singer: "Bleachers", initials: "BL", avatar: "bleachers.jpg", glow: "rgba(129, 52, 175, 0.2)", text: "Merry Christmas please don't call" },
+    { time: 49, singer: "Alexcrichton", initials: "AC", avatar: "alexcrichton.jpg", glow: "rgba(81, 91, 212, 0.22)", text: "So what if i call?" },
     { time: 54, singer: "Alexcrichton", initials: "AC", avatar: "alexcrichton.jpg", glow: "rgba(81, 91, 212, 0.22)", text: "Andy you pick up the phone" },
     { time: 58, singer: "Alexcrichton", initials: "AC", avatar: "alexcrichton.jpg", glow: "rgba(81, 91, 212, 0.22)", text: "and i use this holiday" },
-    { time: 62, singer: "Alexcrichton", initials: "AC", avatar: "alexcrichton.jpg", glow: "rgba(81, 91, 212, 0.22)", text: "To make my way to your ghost" }
+    { time: 61, singer: "Alexcrichton", initials: "AC", avatar: "alexcrichton.jpg", glow: "rgba(81, 91, 212, 0.22)", text: "To make my way to your ghost" }
   ];
 
   const relayStream = document.getElementById("relayStream");
   const ambientGlow = document.getElementById("ambientGlow");
+  const botCompanion = document.querySelector(".bot-companion");
   const audio = document.getElementById("songAudio");
   const playBtn = document.getElementById("playBtn");
   const seekBar = document.getElementById("seekBar");
@@ -67,6 +68,12 @@
     return Boolean(audio) && !audioError && Number.isFinite(audio.duration) && audio.duration > 0;
   }
 
+  function updateBotTempo() {
+    if (botCompanion) {
+      botCompanion.style.animationDuration = isPlaying ? "5.2s" : "8.5s";
+    }
+  }
+
   function renderUI(sec, total) {
     let activeIdx = 0;
     for (let i = 0; i < cues.length; i++) {
@@ -83,6 +90,8 @@
       ambientGlow.style.background = `radial-gradient(circle, ${cues[activeIdx].glow}, rgba(81, 91, 212, 0.06) 50%, transparent 72%)`;
     }
 
+    updateBotTempo();
+
     const safeTotal = total > 0 ? total : FALLBACK_DURATION;
     seekBar.value = String(Math.min(100, Math.max(0, (sec / safeTotal) * 100)));
     const suffix = audioError ? " • cek lagu1.mp3" : "";
@@ -97,6 +106,7 @@
   function setPausedState() {
     isPlaying = false;
     playBtn.textContent = "Putar";
+    updateBotTempo();
     stopTimer();
     if (audio && !audio.paused) {
       audio.pause();
@@ -123,6 +133,7 @@
 
     isPlaying = true;
     playBtn.textContent = "Jeda";
+    updateBotTempo();
 
     if (hasRealAudio()) {
       audio.play().catch(() => {
@@ -168,6 +179,66 @@
       currentSec = 0;
       setPausedState();
       renderUI(0, hasRealAudio() ? audio.duration : FALLBACK_DURATION);
+    });
+  }
+
+  const particleCanvas = document.getElementById("ambientParticles");
+  if (particleCanvas) {
+    const ctx = particleCanvas.getContext("2d");
+    let width = 0;
+    let height = 0;
+    let particles = [];
+
+    function resizeCanvas() {
+      width = particleCanvas.width = window.innerWidth;
+      height = particleCanvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+      const count = Math.min(42, Math.max(18, Math.floor((width * height) / 38000)));
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 2.1 + 0.7,
+        vx: (Math.random() - 0.5) * 0.28,
+        vy: -Math.random() * 0.35 - 0.08,
+        phase: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.02 + 0.01
+      }));
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (const p of particles) {
+        p.x += p.vx + Math.sin(p.phase) * 0.14;
+        p.y += p.vy;
+        p.phase += p.speed;
+
+        if (p.y < -12) {
+          p.y = height + 12;
+          p.x = Math.random() * width;
+        }
+        if (p.x < -12) p.x = width + 12;
+        if (p.x > width + 12) p.x = -12;
+
+        const alpha = 0.22 + (Math.sin(p.phase) + 1) * 0.24;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(226, 234, 255, ${alpha.toFixed(3)})`;
+        ctx.fill();
+      }
+
+      requestAnimationFrame(drawParticles);
+    }
+
+    resizeCanvas();
+    createParticles();
+    drawParticles();
+
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      createParticles();
     });
   }
 
