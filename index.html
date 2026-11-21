@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estafet Lirik — Visual Storytelling</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Latar suasana ruang & cahaya lembut -->
+  <div class="cosmos-bg" aria-hidden="true">
+    <div class="starfield"></div>
+    <div class="ambient-glow" id="ambientGlow"></div>
+  </div>
+
+  <!-- Area utama aliran lirik estafet (rata kiri agar ruang latar tetap lega) -->
+  <main class="stage">
+    <section class="relay-stream" id="relayStream" aria-live="polite"></section>
+  </main>
+
+  <!-- Kontrol audio minimalis di bagian bawah -->
+  <footer class="audio-bar">
+    <!-- Ganti 'audio.mp3' dengan nama file audio lagumu -->
+    <audio id="songAudio" src="audio.mp3" preload="metadata"></audio>
+    <button id="playBtn" type="button">Putar</button>
+    <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" aria-label="Posisi lagu" />
+    <span id="timeReadout">00:00 / 00:00</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
