@@ -5,7 +5,9 @@
   --accent-ring: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -19,7 +21,6 @@ body {
   overflow: hidden;
 }
 
-/* Latar berbintang & cahaya napas */
 .cosmos-bg {
   position: fixed;
   inset: 0;
@@ -62,7 +63,6 @@ body {
   50% { transform: translateY(-50%) scale(1.06); opacity: 1; }
 }
 
-/* Tata letak panggung utama */
 .stage {
   position: relative;
   z-index: 1;
@@ -79,7 +79,6 @@ body {
   height: 60vh;
 }
 
-/* Tiap baris estafet lirik bergerak mulus sesuai posisi relatifnya */
 .singer-row {
   position: absolute;
   left: 0;
@@ -117,7 +116,6 @@ body {
   filter: blur(1px);
 }
 
-/* Avatar lingkaran dengan bingkai gradien + fallback inisial */
 .avatar-ring {
   width: 74px;
   height: 74px;
@@ -185,7 +183,6 @@ body {
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
 }
 
-/* Bilah kontrol audio bawah */
 .audio-bar {
   position: fixed;
   bottom: 1.35rem;
